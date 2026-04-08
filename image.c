@@ -27,7 +27,7 @@ typedef struct{
     Image* dest;
     int start;
     int end;
-    Matrix *algorithm;
+    Matrix algorithm;
 } tParams;
 
 
@@ -47,7 +47,7 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
     if (my<0) my=0;
     if (px>=srcImage->width) px=srcImage->width-1;
     if (py>=srcImage->height) py=srcImage->height-1;
-    uint8_t result=
+    double result=
         algorithm[0][0]*srcImage->data[Index(mx,my,srcImage->width,bit,srcImage->bpp)]+
         algorithm[0][1]*srcImage->data[Index(x,my,srcImage->width,bit,srcImage->bpp)]+
         algorithm[0][2]*srcImage->data[Index(px,my,srcImage->width,bit,srcImage->bpp)]+
@@ -57,7 +57,9 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
         algorithm[2][0]*srcImage->data[Index(mx,py,srcImage->width,bit,srcImage->bpp)]+
         algorithm[2][1]*srcImage->data[Index(x,py,srcImage->width,bit,srcImage->bpp)]+
         algorithm[2][2]*srcImage->data[Index(px,py,srcImage->width,bit,srcImage->bpp)];
-    return result;
+    if (result < 0) return 0;
+    if (result > 255) return 255;
+    return (uint8_t)result;
 }
 
 //Thread function for convolution portion of image.
@@ -96,7 +98,7 @@ void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
     for (i = 0; i < threadCount; i++) {
         params[i].src = srcImage;
         params[i].dest = destImage;
-        params[i].algorithm = &algorithm;
+        memcpy(params[i].algorithm, algorithm, sizeof(Matrix));
         params[i].start = start;
         params[i].end = start + rowsPerT + (i < extra ? 1 : 0);
         pthread_create(&threads[i], NULL, conv_rows, &params[i]);

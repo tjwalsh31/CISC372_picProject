@@ -1,5 +1,5 @@
 
 image:image.c image.h
-	gcc -g image.c -o image -lm -pthread
+	gcc -O3 image.c -o image -lm -pthread
 clean:
-	rm -f image output.png
+	rm -rf image output.png image.dSYM
