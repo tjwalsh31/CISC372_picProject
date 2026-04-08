@@ -3,7 +3,10 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "image.h"
+#define NUM_THREADS 4
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -82,7 +85,20 @@ void* threadWorker(void* arg) {
 //            algorithm: The kernel matrix to use for the convolution
 //Returns: Nothing
 void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
-    int row,pix,bit,span;
+    pthread_t threads[NUM_THREADS];
+    int rowsPerThread = srcImage->height / NUM_THREADS;
+
+    for (int i = 0; i < NUM_THREADS; i++) {
+        struct Thread* tparam = malloc(sizeof(struct Thread));
+        tparam->srcImage = srcImage;
+        tparam->destImage = destImage;
+        memcpy(&tparam->algorithm, &algorithm, sizeof(Matrix)); //I couldn't do tparam->algorithm = algorithm so this will have to do
+        tparam->start = i * rowsPerThread;
+        tparam->end = (i == NUM_THREADS - 1) ? srcImage->height : (i + 1) * rowsPerThread;
+
+        pthread_create(&threads[i], NULL, threadWorker, tparam);
+    }
+    /*
     span=srcImage->bpp*srcImage->bpp;
     for (row=0;row<srcImage->height;row++){
         for (pix=0;pix<srcImage->width;pix++){
@@ -90,6 +106,11 @@ void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
                 destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithm);
             }
         }
+            
+    }*/
+
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
     }
 }
 
