@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <string.h>
+#include <stdlib.h>
 #include "image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -19,6 +20,14 @@ Matrix algorithms[]={
     {{1.0/16,1.0/8,1.0/16},{1.0/8,1.0/4,1.0/8},{1.0/16,1.0/8,1.0/16}},
     {{-2,-1,0},{-1,1,1},{0,1,2}},
     {{0,0,0},{0,1,0},{0,0,0}}
+};
+
+struct Thread{
+    Image* srcImage;
+    Image* destImage;
+    Matrix algorithm;
+    int start;
+    int end;
 };
 
 
@@ -50,6 +59,22 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
         algorithm[2][2]*srcImage->data[Index(px,py,srcImage->width,bit,srcImage->bpp)];
     return result;
 }
+
+void* threadWorker(void* arg) {
+    struct Thread* tparam = (struct Thread*)tparam;
+    for (int row = tparam->start; row < tparam->end; row++){
+        for (int pix = 0; pix < tparam->srcImage->width; pix++){
+            for (int bit = 0; bit < tparam->srcImage->bpp; bit++){
+                tparam->destImage->data[Index(pix,row,tparam->srcImage->width,bit,tparam->srcImage->bpp)] = getPixelValue(tparam->srcImage,pix,row,bit,tparam->algorithm);  
+            }
+        }
+    }
+    free(tparam);
+    return NULL;
+}
+
+
+
 
 //convolute:  Applies a kernel matrix to an image
 //Parameters: srcImage: The image being convoluted
