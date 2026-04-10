@@ -1,0 +1,13 @@
+Script started on Fri Apr 10 14:01:44 2026
+]0;tjwalsh@r1n01.darwin:~/CISC372_picProject[?1034h[tjwalsh@r1n01 CISC372_picProject]$ ./image pic1.jpg edge
+Took 6 seconds
+]0;tjwalsh@r1n01.darwin:~/CISC372_picProject[tjwalsh@r1n01 CISC372_picProject]$ ./imagemp pic1.jpg edge
+Took 3 seconds
+]0;tjwalsh@r1n01.darwin:~/CISC372_picProject[tjwalsh@r1n01 CISC372_picProject]$ ./image pic2.jpg g gauss
+Took 6 seconds
+]0;tjwalsh@r1n01.darwin:~/CISC372_picProject[tjwalsh@r1n01 CISC372_picProject]$ ./image pic2 2.jpg          emp pic2.jpg gauss
+Took 3 seconds
+]0;tjwalsh@r1n01.darwin:~/CISC372_picProject[tjwalsh@r1n01 CISC372_picProject]$ exit
+exit
+
+Script done on Fri Apr 10 14:02:38 2026
